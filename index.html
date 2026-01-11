@@ -1,271 +1,302 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fargo Race Calculator 🎱</title>
+<div id="fargo-app"></div>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap');
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap');
 
-    :root{
-      --fc-border: rgba(0,0,0,.10);
-      --fc-muted: rgba(0,0,0,.60);
-      --fc-bg: rgba(0,0,0,.04);
-      --fc-green: #1f8f4a;
-    }
+html, body {
+  overflow: hidden;
+}
 
-    html, body{
-      height: 100%;
-      margin: 0;
-    }
+#fargo-app{
+  font-family: "Jost", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
 
-    body{
-      font-family: "Jost", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      background: #fff;
-    }
+#fargo-app{
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
 
-    /* FULL PAGE CENTERING */
-    #fargo-app{
-      min-height: 100vh;
-      display: flex;
-      align-items: center;       /* vertical center */
-      justify-content: center;   /* horizontal center */
-      padding: 12px;             /* mobile breathing room */
-      box-sizing: border-box;
-    }
+  :root{
+    --fc-border: rgba(0,0,0,.10);
+    --fc-muted: rgba(0,0,0,.60);
+    --fc-bg: rgba(0,0,0,.04);
+    --fc-green: #1f8f4a;
+  }
 
-    .fc-wrap{
-      width: 100%;               /* IMPORTANT: mobile fills width */
-      max-width: 520px;          /* desktop cap */
-    }
+.fc-wrap{
+  width: 100%;
+  padding: 0;
+}
 
-    .fc-card{
-      background: #fff;
-      border: 1px solid var(--fc-border);
-      border-radius: 18px;
-      padding: 14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.06);
-    }
+  .fc-card{
+    background: #fff;
+    border: 1px solid var(--fc-border);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.06);
+  }
 
-    .fc-title{
-      margin: 0 0 12px;
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: .2px;
-      color: var(--fc-green);
-    }
+  .fc-title{
+    margin: 0 0 12px;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: .2px;
+    color:#1f8f4a;
+  }
 
-    /* MOBILE FIRST: one column */
-    .fc-grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
+  /* mobile-first layout */
+  .fc-grid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 
-    .fc-field label{
-      display:block;
-      font-size: 12px;
-      font-weight: 600;
-      color: rgba(0,0,0,.75);
-      margin-bottom: 6px;
-    }
+  .fc-field label{
+    display:block;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(0,0,0,.75);
+    margin-bottom: 6px;
+  }
 
-    .fc-input{
-      width: 100%;
-      padding: 14px;
-      font-size: 18px;
-      font-weight: 600;
-      font-family: inherit;
-      border: 1px solid rgba(0,0,0,.16);
-      border-radius: 14px;
-      appearance: none;
-      background: #fff;
-      box-sizing: border-box;
-    }
+  .fc-input{
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    font-weight: 600;
+    font-family: inherit;        /* force same font */
+    border: 1px solid rgba(0,0,0,.16);
+    border-radius: 14px;
+    appearance: none;
+    background: #fff;
+  }
 
-    .fc-input:focus{
-      outline: none;
-      border-color: rgba(0,0,0,.35);
-      box-shadow: 0 0 0 4px rgba(0,0,0,.06);
-    }
+  .fc-input:focus{
+    outline: none;
+    border-color: rgba(0,0,0,.35);
+    box-shadow: 0 0 0 4px rgba(0,0,0,.06);
+  }
 
-    .fc-out{
-      margin-top: 12px;
-      padding: 14px;
-      border-radius: 18px;
-      background: var(--fc-bg);
-      border: 1px solid rgba(0,0,0,.08);
-      text-align: center;
-    }
+  .fc-out{
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 18px;
+    background: var(--fc-bg);
+    border: 1px solid rgba(0,0,0,.08);
+    text-align: center;
+  }
 
-    .fc-race{
-      font-size: 46px;
-      font-weight: 800;
-      letter-spacing: .6px;
-      line-height: 1;
-    }
+  .fc-race{
+    font-size: 46px;
+    font-weight: 800;
+    letter-spacing: .6px;
+    line-height: 1;
+  }
 
-    .fc-sub{
-      margin-top: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--fc-muted);
-      letter-spacing: .2px;
-    }
+  .fc-sub{
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fc-muted);
+    letter-spacing: .2px;
+  }
 
-    .fc-actions{
-      margin-top: 12px;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
+  .fc-actions{
+    margin-top: 12px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
 
-    .fc-btn{
-      width: 100%;
-      padding: 12px 10px;
-      border-radius: 14px;
-      border: 1px solid rgba(0,0,0,.14);
-      background: #fff;
-      font-size: 14px;
-      font-weight: 700;
-      font-family: inherit;
-      color: var(--fc-green);
-      cursor: pointer;
-    }
+  .fc-btn{
+    width: 100%;
+    padding: 12px 10px;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,.14);
+    background: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    color: var(--fc-green);      /* green text */
+    cursor: pointer;
+  }
 
-    .fc-btn:active{
-      transform: translateY(1px);
-    }
+  .fc-btn:active{
+    transform: translateY(1px);
+  }
 
-    /* WIDER SCREENS ONLY: two columns */
-    @media (min-width: 520px){
-      .fc-card{ padding: 18px; }
-      .fc-grid{ grid-template-columns: 1fr 1fr; gap: 12px; }
-      .fc-race{ font-size: 52px; }
-    }
-  </style>
-</head>
+  /* wider screens */
+  @media (min-width: 520px){
+    .fc-card{ padding: 18px; }
+    .fc-grid{ grid-template-columns: 1fr 1fr; gap: 12px; }
+    .fc-race{ font-size: 52px; }
+  }
 
-<body>
-  <div id="fargo-app"></div>
+  @media (max-width: 520px){
+  .fc-card{
+    width: 100%;
+    padding: 16px;
+  }
 
-  <script>
-  (function () {
-    const mount = document.getElementById("fargo-app");
+  .fc-title{
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
 
-    mount.innerHTML = `
-      <div class="fc-wrap">
-        <div class="fc-card">
-          <h2 class="fc-title">Fargo Race Calculator 🎱</h2>
+  .fc-input{
+    padding: 16px;
+    font-size: 20px;
+  }
 
-          <div class="fc-grid">
-            <div class="fc-field">
-              <label for="p1">Player 1 Fargo</label>
-              <input id="p1" class="fc-input" type="number" inputmode="numeric" />
-            </div>
-            <div class="fc-field">
-              <label for="p2">Player 2 Fargo</label>
-              <input id="p2" class="fc-input" type="number" inputmode="numeric" />
-            </div>
+  .fc-out{
+    padding: 18px;
+    margin-top: 16px;
+  }
+
+  .fc-race{
+    font-size: 64px; /* make this the hero */
+  }
+
+  .fc-actions{
+    margin-top: 16px;
+    gap: 12px;
+  }
+
+  .fc-btn{
+    padding: 14px;
+    font-size: 15px;
+  }
+}
+
+</style>
+
+<script>
+(function () {
+  const mount = document.getElementById("fargo-app");
+
+  mount.innerHTML = `
+    <div class="fc-wrap">
+      <div class="fc-card">
+        <h2 class="fc-title">Fargo Race Calculator 🎱</h2>
+
+        <div class="fc-grid">
+          <div class="fc-field">
+            <label for="p1">Player 1 Fargo</label>
+            <input id="p1" class="fc-input" type="number" inputmode="numeric" />
           </div>
-
-          <div class="fc-out" aria-live="polite">
-            <div class="fc-race" id="race">0-0</div>
-            <div class="fc-sub" id="tiers"></div>
-          </div>
-
-          <div class="fc-actions">
-            <button class="fc-btn" id="swap" type="button">Swap Players</button>
-            <button class="fc-btn" id="clear" type="button">Clear</button>
+          <div class="fc-field">
+            <label for="p2">Player 2 Fargo</label>
+            <input id="p2" class="fc-input" type="number" inputmode="numeric" />
           </div>
         </div>
+
+        <div class="fc-out" aria-live="polite">
+          <div class="fc-race" id="race">0-0</div>
+          <div class="fc-sub" id="tiers"></div>
+        </div>
+
+        <div class="fc-actions">
+          <button class="fc-btn" id="swap" type="button">Swap Players</button>
+          <button class="fc-btn" id="clear" type="button">Clear</button>
+        </div>
       </div>
-    `;
+    </div>
+  `;
 
-    const thresholds = [
-      { tier: "G", min: 314 },
-      { tier: "F", min: 315 },
-      { tier: "E", min: 355 },
-      { tier: "D", min: 395 },
-      { tier: "C", min: 447 },
-      { tier: "B", min: 490 },
-      { tier: "A", min: 515 },
-      { tier: "A+", min: 535 }
-    ];
+  const thresholds = [
+    { tier: "G", min: 314 },
+    { tier: "F", min: 315 },
+    { tier: "E", min: 355 },
+    { tier: "D", min: 395 },
+    { tier: "C", min: 447 },
+    { tier: "B", min: 490 },
+    { tier: "A", min: 515 },
+    { tier: "A+", min: 535 }
+  ];
 
-    const matrix = {
-      "A+": { "A+":"6-6","A":"7-6","B":"7-5","C":"7-4","D":"7-3","E":"7-2","F":"8-2","G":"9-2" },
-      "A":  { "A+":"6-7","A":"6-6","B":"6-5","C":"6-4","D":"6-3","E":"6-2","F":"7-2","G":"8-2" },
-      "B":  { "A+":"5-7","A":"5-6","B":"5-5","C":"5-4","D":"5-3","E":"5-2","F":"6-2","G":"7-2" },
-      "C":  { "A+":"4-7","A":"4-6","B":"4-5","C":"4-4","D":"4-3","E":"4-2","F":"5-2","G":"6-2" },
-      "D":  { "A+":"3-7","A":"3-6","B":"3-5","C":"3-4","D":"3-3","E":"3-2","F":"4-2","G":"5-2" },
-      "E":  { "A+":"2-7","A":"2-6","B":"2-5","C":"2-4","D":"2-3","E":"3-3","F":"3-2","G":"4-2" },
-      "F":  { "A+":"2-8","A":"2-7","B":"2-6","C":"2-5","D":"2-4","E":"2-3","F":"2-2","G":"3-2" },
-      "G":  { "A+":"2-9","A":"2-8","B":"2-7","C":"2-6","D":"2-5","E":"2-4","F":"2-3","G":"2-2" }
-    };
+  const matrix = {
+    "A+": { "A+":"6-6","A":"7-6","B":"7-5","C":"7-4","D":"7-3","E":"7-2","F":"8-2","G":"9-2" },
+    "A":  { "A+":"6-7","A":"6-6","B":"6-5","C":"6-4","D":"6-3","E":"6-2","F":"7-2","G":"8-2" },
+    "B":  { "A+":"5-7","A":"5-6","B":"5-5","C":"5-4","D":"5-3","E":"5-2","F":"6-2","G":"7-2" },
+    "C":  { "A+":"4-7","A":"4-6","B":"4-5","C":"4-4","D":"4-3","E":"4-2","F":"5-2","G":"6-2" },
+    "D":  { "A+":"3-7","A":"3-6","B":"3-5","C":"3-4","D":"3-3","E":"3-2","F":"4-2","G":"5-2" },
+    "E":  { "A+":"2-7","A":"2-6","B":"2-5","C":"2-4","D":"2-3","E":"3-3","F":"3-2","G":"4-2" },
+    "F":  { "A+":"2-8","A":"2-7","B":"2-6","C":"2-5","D":"2-4","E":"2-3","F":"2-2","G":"3-2" },
+    "G":  { "A+":"2-9","A":"2-8","B":"2-7","C":"2-6","D":"2-5","E":"2-4","F":"2-3","G":"2-2" }
+  };
 
-    const p1 = mount.querySelector("#p1");
-    const p2 = mount.querySelector("#p2");
-    const raceEl = mount.querySelector("#race");
-    const tiersEl = mount.querySelector("#tiers");
+  const p1 = mount.querySelector("#p1");
+  const p2 = mount.querySelector("#p2");
+  const raceEl = mount.querySelector("#race");
+  const tiersEl = mount.querySelector("#tiers");
 
-    function clampMin(v){
-      if (!Number.isFinite(v)) return null;
-      return Math.max(v, 314);
+  function clampMin(v){
+    if (!Number.isFinite(v)) return null;
+    return Math.max(v, 314);
+  }
+
+  function toTier(fargo){
+    let tier = thresholds[0].tier;
+    for (const t of thresholds) if (fargo >= t.min) tier = t.tier;
+    return tier;
+  }
+
+  function update(){
+    const v1 = clampMin(parseFloat(p1.value));
+    const v2 = clampMin(parseFloat(p2.value));
+
+    if (v1 === null || v2 === null){
+      raceEl.textContent = "0-0";
+      tiersEl.textContent = "";
+      return;
     }
 
-    function toTier(fargo){
-      let tier = thresholds[0].tier;
-      for (const t of thresholds) if (fargo >= t.min) tier = t.tier;
-      return tier;
-    }
+    const t1 = toTier(v1);
+    const t2 = toTier(v2);
+    const race = matrix[t1]?.[t2] ?? "0-0";
 
-    function update(){
-      const v1 = clampMin(parseFloat(p1.value));
-      const v2 = clampMin(parseFloat(p2.value));
+    raceEl.textContent = race;
+    tiersEl.textContent = `${t1} vs ${t2}`;
+  }
 
-      if (v1 === null || v2 === null){
-        raceEl.textContent = "0-0";
-        tiersEl.textContent = "";
-        return;
-      }
+p1.addEventListener("input", () => {
+  // auto-advance after 3 digits
+  if (p1.value.length >= 3) {
+    p2.focus();
+  }
+  update();
+});
 
-      const t1 = toTier(v1);
-      const t2 = toTier(v2);
-      const race = matrix[t1]?.[t2] ?? "0-0";
 
-      raceEl.textContent = race;
-      tiersEl.textContent = `${t1} vs ${t2}`;
-    }
+p2.addEventListener("input", () => {
+  // after 3 digits, dismiss the keyboard / text entry prompt
+  if (p2.value.length >= 3) {
+    p2.blur();
+  }
+  update();
+});
 
-    p1.addEventListener("input", () => {
-      if (p1.value.length >= 3) p2.focus();
-      update();
-    });
 
-    p2.addEventListener("input", () => {
-      if (p2.value.length >= 3) p2.blur();
-      update();
-    });
-
-    mount.querySelector("#swap").addEventListener("click", () => {
-      const tmp = p1.value;
-      p1.value = p2.value;
-      p2.value = tmp;
-      update();
-    });
-
-    mount.querySelector("#clear").addEventListener("click", () => {
-      p1.value = "";
-      p2.value = "";
-      update();
-      if (document.activeElement) document.activeElement.blur();
-    });
-
+  mount.querySelector("#swap").addEventListener("click", () => {
+    const tmp = p1.value;
+    p1.value = p2.value;
+    p2.value = tmp;
     update();
-  })();
-  </script>
-</body>
-</html>
+  });
+
+ mount.querySelector("#clear").addEventListener("click", () => {
+  p1.value = "";
+  p2.value = "";
+  update();
+
+  // dismiss keyboard / remove focus
+  if (document.activeElement) {
+    document.activeElement.blur();
+  }
+});
+  update();
+})();
+</script>
