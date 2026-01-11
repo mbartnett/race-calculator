@@ -36,17 +36,6 @@
   overscroll-behavior: none;
 }
 
-
-    /* page centering */
-    /*#fargo-app{
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-      box-sizing: border-box;
-    }
-*/
     .fc-wrap{
       width: 100%;
       max-width: 520px;
@@ -68,7 +57,7 @@
       color: var(--fc-green);
     }
 
-    /* mobile-first: ALWAYS one column */
+
     .fc-grid{
       display: grid;
       grid-template-columns: 1fr;
@@ -148,6 +137,11 @@
 
     .fc-btn:active{ transform: translateY(1px); }
 
+    .fc-btn--neutral{
+  color: rgba(0,0,0,.75);
+  border-color: rgba(0,0,0,.16);
+}
+
     /* wider screens: switch to two columns */
     @media (min-width: 520px){
       .fc-grid{ grid-template-columns: 1fr 1fr; }
@@ -186,7 +180,7 @@
 
             <div class="fc-actions">
               <button class="fc-btn" id="swap" type="button">Swap Players</button>
-              <button class="fc-btn" id="clear" type="button">Clear</button>
+              <button class="fc-btn fc-btn--neutral" id="clear" type="button">Clear</button>
             </div>
           </div>
         </div>
