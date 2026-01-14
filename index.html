@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Race Calculator</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap');
+
+    :root{
+      --fc-border: rgba(0,0,0,.10);
+      --fc-muted: rgba(0,0,0,.60);
+      --fc-bg: rgba(0,0,0,.04);
+      --fc-green: #1f8f4a;
+    }
+
+    html, body{ height: 100%; margin: 0; overflow: hidden;}
+
+    body{
+      font-family: "Jost", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #fff;
+    }
+
+    #fargo-app{
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  box-sizing: border-box;
+  overscroll-behavior: none;
+}
+
+    .fc-wrap{
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .fc-card{
+      background: #fff;
+      border: 1px solid var(--fc-border);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+    }
+
+    .fc-title{
+      margin: 0 0 14px;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: .2px;
+      color: var(--fc-green);
+    }
+
+
+    .fc-grid{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .fc-field label{
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(0,0,0,.75);
+      margin-bottom: 6px;
+    }
+
+    .fc-input{
+      width: 100%;
+      padding: 16px;
+      font-size: 20px;
+      font-weight: 600;
+      font-family: inherit;
+      border: 1px solid rgba(0,0,0,.16);
+      border-radius: 14px;
+      background: #fff;
+      box-sizing: border-box;
+      appearance: none;
+    }
+
+    .fc-input:focus{
+      outline: none;
+      border-color: rgba(0,0,0,.35);
+      box-shadow: 0 0 0 4px rgba(0,0,0,.06);
+    }
+
+    .fc-out{
+      margin-top: 16px;
+      padding: 24px;
+      border-radius: 18px;
+      background: var(--fc-bg);
+      border: 1px solid rgba(0,0,0,.08);
+      text-align: center;
+    }
+
+    .fc-race{
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: .6px;
+      line-height: 1;
+    }
+
+    .fc-sub{
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--fc-muted);
+      letter-spacing: .2px;
+    }
+
+    .fc-actions{
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .fc-btn{
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,.14);
+      background: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      color: var(--fc-green);
+      cursor: pointer;
+    }
+
+    .fc-btn:active{ transform: translateY(1px); }
+
+    .fc-btn--neutral{
+  color: rgba(0,0,0,.75);
+  border-color: rgba(0,0,0,.16);
+}
+
+    /* wider screens: switch to two columns */
+    @media (min-width: 520px){
+      .fc-grid{ grid-template-columns: 1fr 1fr; }
+      .fc-race{ font-size: 52px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="fargo-app"></div>
+
+  <script>
+    (() => {
+      const mount = document.getElementById("fargo-app");
+
+      mount.innerHTML = `
+        <div class="fc-wrap">
+          <div class="fc-card">
+            <h2 class="fc-title">Fargo Race Calculator 🎱</h2>
+
+            <div class="fc-grid">
+              <div class="fc-field">
+                <label for="p1">Player 1 Fargo</label>
+                <input id="p1" class="fc-input" type="number" inputmode="numeric" />
+              </div>
+              <div class="fc-field">
+                <label for="p2">Player 2 Fargo</label>
+                <input id="p2" class="fc-input" type="number" inputmode="numeric" />
+              </div>
+            </div>
+
+            <div class="fc-out" aria-live="polite">
+              <div class="fc-race" id="race">0-0</div>
+              <div class="fc-sub" id="tiers"></div>
+            </div>
+
+            <div class="fc-actions">
+              <button class="fc-btn" id="swap" type="button">Swap Players</button>
+              <button class="fc-btn fc-btn--neutral" id="clear" type="button">Clear</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const thresholds = [
+        { tier: "G", min: 314 },
+        { tier: "F", min: 315 },
+        { tier: "E", min: 355 },
+        { tier: "D", min: 395 },
+        { tier: "C", min: 447 },
+        { tier: "B", min: 490 },
+        { tier: "A", min: 515 },
+      ];
+
+      const matrix = {
+        "A":  { "A":"6-6","B":"6-5","C":"6-4","D":"6-3","E":"6-2","F":"7-2","G":"8-2" },
+        "B":  { "A":"5-6","B":"5-5","C":"5-4","D":"5-3","E":"5-2","F":"6-2","G":"7-2" },
+        "C":  { "A":"4-6","B":"4-5","C":"4-4","D":"4-3","E":"4-2","F":"5-2","G":"6-2" },
+        "D":  { "A":"3-6","B":"3-5","C":"3-4","D":"3-3","E":"3-2","F":"4-2","G":"5-2" },
+        "E":  { "A":"2-6","B":"2-5","C":"2-4","D":"2-3","E":"3-3","F":"3-2","G":"4-2" },
+        "F":  { "A":"2-7","B":"2-6","C":"2-5","D":"2-4","E":"2-3","F":"2-2","G":"3-2" },
+        "G":  { "A":"2-8","B":"2-7","C":"2-6","D":"2-5","E":"2-4","F":"2-3","G":"2-2" }
+      };
+
+      const $ = (sel) => mount.querySelector(sel);
+      const p1 = $("#p1"), p2 = $("#p2"), raceEl = $("#race"), tiersEl = $("#tiers");
+
+      const clampMin = (v) => Number.isFinite(v) ? Math.max(v, 314) : null;
+
+      const toTier = (f) => {
+        let tier = thresholds[0].tier;
+        for (const t of thresholds) if (f >= t.min) tier = t.tier;
+        return tier;
+      };
+
+      const update = () => {
+        const v1 = clampMin(parseFloat(p1.value));
+        const v2 = clampMin(parseFloat(p2.value));
+
+        if (v1 === null || v2 === null){
+          raceEl.textContent = "0-0";
+          tiersEl.textContent = "";
+          return;
+        }
+
+        const t1 = toTier(v1);
+        const t2 = toTier(v2);
+        raceEl.textContent = matrix[t1]?.[t2] ?? "0-0";
+        tiersEl.textContent = `${t1} vs ${t2}`;
+      };
+
+      p1.addEventListener("input", () => { if (p1.value.length >= 3) p2.focus(); update(); });
+      p2.addEventListener("input", () => { if (p2.value.length >= 3) p2.blur(); update(); });
+
+      $("#swap").addEventListener("click", () => { [p1.value, p2.value] = [p2.value, p1.value]; update(); });
+      $("#clear").addEventListener("click", () => {
+        p1.value = ""; p2.value = "";
+        update();
+        document.activeElement?.blur?.();
+      });
+
+document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+      
+      update();
+    })();
+  </script>
+</body>
+</html>
